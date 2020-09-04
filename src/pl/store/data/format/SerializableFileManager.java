@@ -14,34 +14,6 @@ public class SerializableFileManager implements FileManager {
     public final static String PRODUCTS_FILE_NAME = "products.o";
 
     @Override
-    public ShopUsers loadUsers() {
-        ShopUsers shopUsers = new ShopUsers();
-        try (
-                FileInputStream fis = new FileInputStream(new File(USERS_FILE_NAME));
-                ObjectInputStream ois = new ObjectInputStream(fis);
-        ) {
-            shopUsers = (ShopUsers)ois.readObject();
-        } catch (IOException | ClassNotFoundException e){
-            throw new ReadDataException("File cannot be load: " + USERS_FILE_NAME);
-        }
-        return shopUsers;
-    }
-
-    @Override
-    public ShopProducts loadProducts() {
-        ShopProducts shopProducts = new ShopProducts();
-        try (
-                FileInputStream fis = new FileInputStream(new File(PRODUCTS_FILE_NAME));
-                ObjectInputStream ois = new ObjectInputStream(fis);
-        ) {
-            shopProducts = (ShopProducts) ois.readObject();
-        } catch (IOException | ClassNotFoundException e){
-            throw new ReadDataException("File cannot be load: " + PRODUCTS_FILE_NAME);
-        }
-        return shopProducts;
-    }
-
-    @Override
     public void save(ShopUsers shopUsers, ShopProducts shopProducts) {
         saveSingleFile(USERS_FILE_NAME, shopUsers);
         saveSingleFile(PRODUCTS_FILE_NAME, shopProducts);
@@ -56,5 +28,33 @@ public class SerializableFileManager implements FileManager {
         } catch (IOException e){
             throw new WriteDataException("File cannot be save: " + fileName);
         }
+    }
+
+    @Override
+    public ShopUsers loadUsers() {
+        ShopUsers shopUsers;
+        try (
+                FileInputStream fis = new FileInputStream(new File(USERS_FILE_NAME));
+                ObjectInputStream ois = new ObjectInputStream(fis);
+        ) {
+            shopUsers = (ShopUsers)ois.readObject();
+        } catch (IOException | ClassNotFoundException e){
+            throw new ReadDataException("File cannot be load: " + USERS_FILE_NAME);
+        }
+        return shopUsers;
+    }
+
+    @Override
+    public ShopProducts loadProducts() {
+        ShopProducts shopProducts;
+        try (
+                FileInputStream fis = new FileInputStream(new File(PRODUCTS_FILE_NAME));
+                ObjectInputStream ois = new ObjectInputStream(fis);
+        ) {
+            shopProducts = (ShopProducts) ois.readObject();
+        } catch (IOException | ClassNotFoundException e){
+            throw new ReadDataException("File cannot be load: " + PRODUCTS_FILE_NAME);
+        }
+        return shopProducts;
     }
 }

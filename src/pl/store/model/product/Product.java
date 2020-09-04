@@ -10,8 +10,7 @@ public abstract class Product implements ToCsv, Serializable {
     private String name;
     private double priceWithoutTax;
 
-    public Product(int id, String name, double priceWithoutTax) {
-        this.id = id;
+    public Product(String name, double priceWithoutTax) {
         this.name = name;
         this.priceWithoutTax = priceWithoutTax;
     }

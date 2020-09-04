@@ -4,10 +4,11 @@ import pl.store.app.menus.AddMenu;
 import pl.store.app.menus.ClientMenu;
 import pl.store.app.menus.EmployeeMenu;
 import pl.store.app.menus.StartMenu;
-import pl.store.data.DataManager;
+import pl.store.data.FileManagerBuilder;
 import pl.store.data.FileManager;
-import pl.store.exceptions.NoSuchAnOptionException;
+import pl.store.exceptions.MaximumNumberOfLoginTrialException;
 import pl.store.exceptions.ReadDataException;
+import pl.store.exceptions.WriteDataException;
 import pl.store.logic.ContactWithUser;
 import pl.store.logic.Operations;
 import pl.store.model.ShopProducts;
@@ -20,14 +21,14 @@ public class AppController {
 
 
     ContactWithUser cwu = new ContactWithUser();
-    DataManager dm = new DataManager(cwu);
+    FileManagerBuilder fmb = new FileManagerBuilder(cwu);
     FileManager fm;
     ShopProducts shopProducts;
     ShopUsers shopUsers;
     Operations operations;
 
     public AppController() {
-        fm = dm.chooseDataType();
+        fm = fmb.chooseDataType();
         try {
             shopProducts = fm.loadProducts();
             shopUsers = fm.loadUsers();
@@ -43,7 +44,7 @@ public class AppController {
     }
 
     public void controlLoop() {
-        StartMenu startMenu = choice(StartMenu.class);
+        StartMenu startMenu = cwu.choice(StartMenu.class);
         switch(startMenu){
             case CREATE_CLIENT:
                 operations.createClient();
@@ -63,15 +64,20 @@ public class AppController {
     }
 
     private void userMenu() {
-        User user = operations.login();
-        if(user instanceof Client)
-            clientMenu((Client)user);
-        else if(user instanceof Employee)
-            employeeMenu((Employee)user);
+        try {
+            User user = operations.login();
+            if (user instanceof Client)
+                clientMenu((Client) user);
+            else if (user instanceof Employee)
+                employeeMenu((Employee) user);
+        } catch (MaximumNumberOfLoginTrialException e){
+            cwu.printer(e.getMessage());
+            exit();
+        }
     }
 
     private void clientMenu(Client client){
-        ClientMenu clientMenu = choice(ClientMenu.class);
+        ClientMenu clientMenu = cwu.choice(ClientMenu.class);
         switch(clientMenu){
             case BUY:
                 operations.buyProduct(client);
@@ -88,7 +94,7 @@ public class AppController {
     }
 
     private void employeeMenu(Employee employee){
-        EmployeeMenu employeeMenu = choice(EmployeeMenu.class);
+        EmployeeMenu employeeMenu = cwu.choice(EmployeeMenu.class);
         switch(employeeMenu){
             case ADD:
                 addMenu(employee);
@@ -108,7 +114,7 @@ public class AppController {
     }
 
     private void addMenu(Employee employee){
-        AddMenu addMenu = choice(AddMenu.class);
+        AddMenu addMenu = cwu.choice(AddMenu.class);
         switch(addMenu){
             case COMPUTER_GAMES:
                 operations.createComputerGames();
@@ -125,28 +131,14 @@ public class AppController {
     }
 
     private void exit(){
-        fm.save(shopUsers, shopProducts);
-        cwu.closeScanner();
-    }
-
-    private <E extends Enum<E>> E choice(Class<E> type){
-        E menuChoice = null;
-        boolean isOk = false;
-        do {
-            cwu.printer("Choose an option: ");
-            for (E m : type.getEnumConstants()) {
-                cwu.printer(m.toString());
-            }
-            int choice = cwu.getInt();
-            try{
-                menuChoice = type.getEnumConstants()[choice];
-                isOk = true;
-            } catch(NoSuchAnOptionException e){
-                cwu.printer(e.getMessage());
-            } catch (IndexOutOfBoundsException e){
-                cwu.printer("There is no such an option: " + choice);
-            }
-        } while(!isOk);
-        return menuChoice;
+        try {
+            fm.save(shopUsers, shopProducts);
+            cwu.printer("Data saved successfully");
+        } catch (WriteDataException e){
+            cwu.printer(e.getMessage());
+        } finally {
+            cwu.closeScanner();
+            cwu.printer("Bye!");
+        }
     }
 }

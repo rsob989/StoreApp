@@ -1,8 +1,11 @@
 package pl.store.model.user;
 
 import pl.store.model.ToCsv;
+import pl.store.model.product.Product;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class User implements ToCsv, Serializable {
 
@@ -11,13 +14,17 @@ public abstract class User implements ToCsv, Serializable {
     private String firstName;
     private String lastName;
     private String password;
+    private List<Product> boughtProducts = new ArrayList<>();
 
-    public User(int id, String username, String password, String firstName, String lastName) {
-        this.id = id;
+    public User(String username, String password, String firstName, String lastName) {
         this.username = username;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
+    }
+
+    public List<Product> getBoughtProducts() {
+        return boughtProducts;
     }
 
     public String getPassword() {

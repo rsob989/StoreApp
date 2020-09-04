@@ -10,6 +10,8 @@ import java.util.Map;
 
 public class ShopUsers implements Serializable {
 
+    public int userId = 0;
+
     private Map<String, User> shopUsers = new HashMap<>();
 
     public Map<String, User> getShopUsers() {
@@ -21,10 +23,12 @@ public class ShopUsers implements Serializable {
     }
 
     public void addUser (User user){
+        user.setId(userId);
         if(shopUsers.containsKey(user.getUsername()))
             throw new UserWithSuchAnUsernameAlreadyExistsException("There is a user with such an username in the database!");
         else
             shopUsers.put(user.getUsername(), user);
+        userId++;
     }
 
     public User loggedUser(String username, String password){

@@ -1,14 +1,14 @@
 package pl.store.model.product;
 
-public class ComputerGames extends Product{
+public class ComputerGame extends Product{
 
     private final static double TAX = 0.23;
-    public static final String PRODUCT_TYPE = "COMPUTER GAMES";
+    public static final String TYPE = "COMPUTER GAMES";
     private int minimumAge;
     private String platform;
 
-    public ComputerGames(int id, String name, double priceWithoutTax, int minimumAge, String platform) {
-        super(id, name, priceWithoutTax);
+    public ComputerGame(String name, double priceWithoutTax, int minimumAge, String platform) {
+        super(name, priceWithoutTax);
         this.minimumAge = minimumAge;
         this.platform = platform;
     }
@@ -36,13 +36,13 @@ public class ComputerGames extends Product{
 
     @Override
     public String toString() {
-        return super.toString() + " ,price with tax: " + priceWithTax() + " euro, minimal age " + minimumAge
+        return super.toString() + " ,price with tax: " + String.format("%.2f",priceWithTax()) + " euro, minimal age " + minimumAge
                 + ", platform: " + platform;
     }
 
     @Override
     public String toCsv() {
-        return PRODUCT_TYPE + " ; " + getId() + " ; " + getName() + " ; " + getPriceWithoutTax() + " ; " +
+        return TYPE + " ; " + getName() + " ; " + getPriceWithoutTax() + " ; " +
                 minimumAge + " ; " + platform;
     }
 }

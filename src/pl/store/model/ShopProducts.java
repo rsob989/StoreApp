@@ -9,6 +9,8 @@ import java.util.Map;
 
 public class ShopProducts implements Serializable {
 
+    public int productId = 0;
+
     private Map<Integer, Product> shopProducts = new HashMap<>();
 
     public Map<Integer, Product> getShopProducts() {
@@ -20,10 +22,12 @@ public class ShopProducts implements Serializable {
     }
 
     public void addProduct (Product product){
+        product.setId(productId);
         if(shopProducts.containsKey(product.getId()))
             throw new UserWithSuchAnUsernameAlreadyExistsException("There is a user with such an username in the database!");
         else
             shopProducts.put(product.getId(), product);
+        productId++;
     }
 
     public boolean deleteProduct (int idNumber){

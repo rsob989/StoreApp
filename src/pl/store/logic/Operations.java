@@ -3,8 +3,8 @@ package pl.store.logic;
 import pl.store.exceptions.*;
 import pl.store.model.ShopProducts;
 import pl.store.model.ShopUsers;
-import pl.store.model.product.Books;
-import pl.store.model.product.ComputerGames;
+import pl.store.model.product.Book;
+import pl.store.model.product.ComputerGame;
 import pl.store.model.product.Product;
 import pl.store.model.user.Client;
 import pl.store.model.user.Employee;
@@ -13,6 +13,7 @@ import pl.store.model.user.User;
 public class Operations {
 
     public final static int WRONG_LOGIN_TRIAL = 3;
+
 
     ShopUsers shopUsers;
     ShopProducts shopProducts;
@@ -29,7 +30,7 @@ public class Operations {
         User user = null;
         int counter = 0;
         do {
-            if (counter == WRONG_LOGIN_TRIAL) {
+            if (counter >= WRONG_LOGIN_TRIAL) {
                 throw new MaximumNumberOfLoginTrialException("You achieved maximal number of login attempt");
             } else {
                 try {
@@ -42,6 +43,7 @@ public class Operations {
                     isOk = true;
                 } catch (NoSuchAnUserException e) {
                     cwu.printer(e.getMessage());
+                    cwu.printer("Remaining number of login attempts: " + (WRONG_LOGIN_TRIAL-counter));
                 }
             }
         } while (!isOk);
@@ -52,7 +54,6 @@ public class Operations {
         Employee employee = cwu.createNewEmployee();
         try {
             shopUsers.addUser(employee);
-            cwu.userId++;
         } catch (UserWithSuchAnUsernameAlreadyExistsException e) {
             cwu.printer(e.getMessage());
         }
@@ -62,27 +63,24 @@ public class Operations {
         Client client = cwu.createNewClient();
         try {
             shopUsers.addUser(client);
-            cwu.userId++;
         } catch (UserWithSuchAnUsernameAlreadyExistsException e) {
             cwu.printer(e.getMessage());
         }
     }
 
     public void createComputerGames(){
-        ComputerGames computerGames = cwu.createComputerGames();
+        ComputerGame computerGame = cwu.createComputerGames();
         try {
-            shopProducts.addProduct(computerGames);
-            cwu.productId++;
+            shopProducts.addProduct(computerGame);
         } catch (ProductWithSuchAnIdNumberAlreadyExistsException e){
             cwu.printer(e.getMessage());
         }
     }
 
     public void createBooks(){
-        Books book = cwu.createBooks();
+        Book book = cwu.createBooks();
         try {
             shopProducts.addProduct(book);
-            cwu.productId++;
         } catch (ProductWithSuchAnIdNumberAlreadyExistsException e){
             cwu.printer(e.getMessage());
         }
@@ -109,6 +107,7 @@ public class Operations {
 
     public void buyProduct(Client client){
         Product productToBuy = null;
+        showProducts();
         try{
             productToBuy = findProduct();
         } catch (NoSuchAProductException e){
@@ -116,6 +115,7 @@ public class Operations {
         }
         shopProducts.deleteProduct(productToBuy.getId());
         client.getBoughtProducts().add(productToBuy);
+        cwu.printer("You bought: " + productToBuy.toString());
     }
 
     private Product findProduct() {

@@ -6,13 +6,15 @@ import pl.store.exceptions.WriteDataException;
 import pl.store.model.ShopProducts;
 import pl.store.model.ShopUsers;
 import pl.store.model.ToCsv;
-import pl.store.model.product.Books;
-import pl.store.model.product.ComputerGames;
+import pl.store.model.product.Book;
+import pl.store.model.product.ComputerGame;
 import pl.store.model.product.Product;
 import pl.store.model.user.*;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 public class CsvFileManager implements FileManager {
 
@@ -25,6 +27,20 @@ public class CsvFileManager implements FileManager {
         saveSingleFile(PRODUCTS_FILE_NAME, shopProducts.getShopProducts().values());
     }
 
+    public <T extends ToCsv> void saveSingleFile(String fileName, Collection<T> collection) {
+        try (
+                FileWriter fr = new FileWriter(new File(fileName));
+                BufferedWriter br = new BufferedWriter(fr);
+        ) {
+            for (T col : collection) {
+                br.write(col.toCsv());
+                br.newLine();
+            }
+        } catch (IOException e) {
+            throw new WriteDataException("File cannot be save: " + fileName);
+        }
+    }
+
     @Override
     public ShopUsers loadUsers() {
         ShopUsers shopUsers = new ShopUsers();
@@ -33,13 +49,64 @@ public class CsvFileManager implements FileManager {
                 BufferedReader br = new BufferedReader(fr);
         ) {
             br.lines()
-                    .map(x -> x.split(" ; "))
-                    .map(this::loadUserFromCsv)
+                    .map(x -> x.split(" : "))
+                    .map(this::loadUser)
                     .forEach(shopUsers::addUser);
-        } catch (IOException e){
+        } catch (IOException e) {
             throw new ReadDataException("File cannot be load: " + PRODUCTS_FILE_NAME);
         }
         return shopUsers;
+    }
+
+    private User loadUser(String[] obj) {
+        User user = null;
+        String[] userData = obj[0].split(" ; ");
+        if (userData[0].equals(Client.TYPE)) {
+            user = loadProductsBoughtByUser(obj, userData);
+        } else if (userData[0].equals(Employee.TYPE)) {
+            user = loadEmployeeFromCsv(userData);
+        }
+        return user;
+    }
+
+    private User loadProductsBoughtByUser(String[] obj, String[] userData) {
+        User user;
+        user = loadClientFromCsv(userData);
+        for(int i = 1; i < obj.length; i++){
+            String[] productData = obj[i].split(" ; ");
+            if(productData[0].equals(ComputerGame.TYPE)){
+                user.getBoughtProducts().add(loadComputerGameFromCsv(productData));
+            } else if(productData[0].equals(Book.TYPE)){
+                user.getBoughtProducts().add(loadBookFromCsv(productData));
+            }
+        }
+        return user;
+    }
+
+    private Employee loadEmployeeFromCsv(String[] data) {
+        String username = data[1];
+        String password = data[2];
+        String firstName = data[3];
+        String lastName = data[4];
+        int salary = Integer.parseInt(data[5]);
+        String pos = data[6];
+        Position position = Position.valueOf(pos);
+        return new Employee(username, password, firstName, lastName, salary, position);
+    }
+
+    private Client loadClientFromCsv(String[] data) {
+        String username = data[1];
+        String password = data[2];
+        String firstName = data[3];
+        String lastName = data[4];
+        String country = data[5];
+        String postalCode = data[6];
+        String streetName = data[7];
+        int houseNumber = Integer.parseInt(data[8]);
+        int flatNumber = Integer.parseInt(data[9]);
+        int age = Integer.parseInt(data[10]);
+        Address address = new Address(country, postalCode, streetName, houseNumber, flatNumber);
+        return new Client(username, password, firstName, lastName, address, age);
     }
 
     @Override
@@ -53,86 +120,36 @@ public class CsvFileManager implements FileManager {
                     .map(x -> x.split(" ; "))
                     .map(this::loadProductFromCsv)
                     .forEach(shopProducts::addProduct);
-        } catch (IOException e){
+        } catch (IOException e) {
             throw new ReadDataException("File cannot be load: " + PRODUCTS_FILE_NAME);
         }
         return shopProducts;
     }
 
-    private Product loadProductFromCsv(String[] data){
+    private Product loadProductFromCsv(String[] data) {
         Product product = null;
-        if(data[0].equals(ComputerGames.PRODUCT_TYPE))
+        if (data[0].equals(ComputerGame.TYPE))
             product = loadComputerGameFromCsv(data);
-        else if(data[0].equals(Books.PRODUCT_TYPE))
+        else if (data[0].equals(Book.TYPE))
             product = loadBookFromCsv(data);
         return product;
     }
 
-    private ComputerGames loadComputerGameFromCsv(String[] data){
-        int id = Integer.valueOf(data[1]);
-        String name = data[2];
-        double priceWithoutTax = Double.valueOf(data[3]);
-        int minimumAge = Integer.valueOf(data[4]);
-        String platform = data[5];
-        return new ComputerGames(id, name, priceWithoutTax, minimumAge, platform);
+    private ComputerGame loadComputerGameFromCsv(String[] data) {
+        String name = data[1];
+        double priceWithoutTax = Double.parseDouble(data[2]);
+        int minimumAge = Integer.parseInt(data[3]);
+        String platform = data[4];
+        return new ComputerGame(name, priceWithoutTax, minimumAge, platform);
     }
 
-    private Books loadBookFromCsv(String[] data){
-        int id = Integer.valueOf(data[1]);
-        String name = data[2];
-        double priceWithoutTax = Double.valueOf(data[3]);
-        int pages = Integer.valueOf(data[4]);
-        String type = data[5];
-        return new Books(id, name, priceWithoutTax, pages, type);
+    private Book loadBookFromCsv(String[] data) {
+        String name = data[1];
+        double priceWithoutTax = Double.parseDouble(data[2]);
+        int pages = Integer.parseInt(data[3]);
+        String type = data[4];
+        return new Book(name, priceWithoutTax, pages, type);
     }
 
-    private User loadUserFromCsv(String[] data) {
-        User user = null;
-        if(data[0].equals(Client.USER_TYPE))
-            user= loadClientFromCsv(data);
-        else if(data[0].equals(Employee.USER_TYPE))
-            user= loadEmployeeFromCsv(data);
-        return user;
-    }
 
-    private Employee loadEmployeeFromCsv(String[] data){
-        int id = Integer.valueOf(data[1]);
-        String username = data[2];
-        String password = data[3];
-        String firstName = data[4];
-        String lastName = data[5];
-        int salary = Integer.valueOf(data[6]);
-        String pos = data[7];
-        Position position = Position.valueOf(pos);
-        return new Employee(id, username, password, firstName, lastName, salary, position);
-    }
-
-    private Client loadClientFromCsv(String[] data){
-        int id = Integer.valueOf(data[1]);
-        String username = data[2];
-        String password = data[3];
-        String firstName = data[4];
-        String lastName = data[5];
-        String country = data[6];
-        String postalCode = data[7];
-        String streetName = data[8];
-        int houseNumber = Integer.valueOf(data[9]);
-        int flatNumber = Integer.valueOf(data[10]);
-        int age = Integer.valueOf(data[11]);
-        Address address = new Address(country, postalCode, streetName, houseNumber, flatNumber);
-        return new Client(id, username, password, firstName, lastName, address, age);
-    }
-
-    public <T extends ToCsv> void saveSingleFile(String fileName, Collection<T> collection) {
-        try (
-                FileWriter fr = new FileWriter(new File(fileName));
-                BufferedWriter br = new BufferedWriter(fr);
-        ) {
-            for (T user : collection) {
-                br.write(user.toCsv());
-            }
-        } catch (IOException e) {
-            throw new WriteDataException("File cannot be save: " + fileName);
-        }
-    }
 }

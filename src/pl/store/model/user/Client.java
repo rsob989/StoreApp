@@ -1,29 +1,23 @@
 package pl.store.model.user;
 
+import pl.store.model.ToCsv;
 import pl.store.model.product.Product;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Client extends User {
 
-    public static final String USER_TYPE = "CLIENT";
+    public static final String TYPE = "CLIENT";
     private Address address;
     private int age;
-    private List<Product> boughtProducts = new ArrayList<>();
 
-    public Client(int id, String username, String password, String firstName, String lastName, Address address, int age) {
-        super(id, username, password, firstName, lastName);
+    public Client(String username, String password, String firstName, String lastName, Address address, int age) {
+        super(username, password, firstName, lastName);
         this.address = address;
         this.age = age;
-    }
-
-    public List<Product> getBoughtProducts() {
-        return boughtProducts;
-    }
-
-    public void setBoughtProducts(List<Product> boughtProducts) {
-        this.boughtProducts = boughtProducts;
     }
 
     public Address getAddress() {
@@ -47,10 +41,16 @@ public class Client extends User {
         return super.toString() + " - " + age + " " + "years old. Shipping address: " + address.toString();
     }
 
+    private <E extends ToCsv> String listToCsv(Collection<E> collection){
+        return collection.stream()
+                .map(x->x.toCsv())
+                .collect(Collectors.joining(" : "));
+    }
+
     @Override
     public String toCsv() {
-        return USER_TYPE + " ; " + getId() + " ; " + getUsername() + " ; " + getPassword()  + " ; " + getFirstName() +
-                " ; " + getLastName()  + " ; " + address.toCsv()  + " ; " + age;
+        return TYPE + " ; " + getUsername() + " ; " + getPassword()  + " ; " + getFirstName() +
+                " ; " + getLastName()  + " ; " + address.toCsv()  + " ; " + age + " : " + listToCsv(getBoughtProducts());
     }
 
 

@@ -2,12 +2,12 @@ package pl.store.model.user;
 
 public class Employee extends User{
 
-    public static final String USER_TYPE = "EMPLOYEE";
+    public static final String TYPE = "EMPLOYEE";
     private int salary;
     private Position position;
 
-    public Employee(int id, String username, String password, String firstName, String lastName, int salary, Position position) {
-        super(id, username, password, firstName, lastName);
+    public Employee(String username, String password, String firstName, String lastName, int salary, Position position) {
+        super(username, password, firstName, lastName);
         this.salary = salary;
         this.position = position;
     }
@@ -35,7 +35,7 @@ public class Employee extends User{
 
     @Override
     public String toCsv() {
-        return USER_TYPE + " ; " + getId() + " ; " + getUsername() + " ; " + getPassword()  + " ; " + getFirstName() +
-                " ; " + getLastName()  + " ; " + salary  + " ; " + position;
+        return TYPE + " ; " + getUsername() + " ; " + getPassword()  + " ; " + getFirstName() +
+                " ; " + getLastName()  + " ; " + salary  + " ; " + position.name();
     }
 }

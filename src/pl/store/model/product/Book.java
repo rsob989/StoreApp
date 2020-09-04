@@ -1,13 +1,13 @@
 package pl.store.model.product;
 
-public class Books extends Product {
+public class Book extends Product {
     private static final double TAX = 0.07;
-    public static final String PRODUCT_TYPE = "BOOKS";
+    public static final String TYPE = "BOOKS";
     private int pages;
     private String type;
 
-    public Books(int id, String name, double priceWithoutTax, int pages, String type) {
-        super(id, name, priceWithoutTax);
+    public Book(String name, double priceWithoutTax, int pages, String type) {
+        super(name, priceWithoutTax);
         this.pages = pages;
         this.type = type;
     }
@@ -35,12 +35,12 @@ public class Books extends Product {
 
     @Override
     public String toString() {
-        return super.toString() + " ,price with tax: " + priceWithTax() + "euro, number of pages" + pages +
+        return super.toString() + " ,price with tax: " + String.format("%.2f",priceWithTax()) + "euro, number of pages" + pages +
                 ", type of the book: " + type;
     }
 
     public String toCsv(){
-        return PRODUCT_TYPE + " ; " + getId() + " ; " + getName() + " ; " + getPriceWithoutTax() + " ; " +
-                pages + " ; " + type;
+        return TYPE + " ; " + getName() + " ; " + getPriceWithoutTax() + " ; "
+                + pages + " ; " + type;
     }
 }

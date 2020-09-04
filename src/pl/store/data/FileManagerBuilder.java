@@ -1,26 +1,21 @@
 package pl.store.data;
 
 import pl.store.data.format.CsvFileManager;
-import pl.store.data.format.DataTypeOptions;
+import pl.store.app.menus.DataTypeMenu;
 import pl.store.data.format.SerializableFileManager;
 import pl.store.logic.ContactWithUser;
 
-public class DataManager {
+public class FileManagerBuilder {
 
     ContactWithUser cwu;
 
-    public DataManager(ContactWithUser cwu) {
+    public FileManagerBuilder(ContactWithUser cwu) {
         this.cwu = cwu;
     }
 
     public FileManager chooseDataType(){
         FileManager fm = null;
-        cwu.printer("Choose data type: ");
-        for(DataTypeOptions d : DataTypeOptions.values()){
-            cwu.printer(d.name());
-        }
-        String choice = cwu.getString().toUpperCase();
-        DataTypeOptions dataType = DataTypeOptions.valueOf(choice);
+        DataTypeMenu dataType = cwu.choice(DataTypeMenu.class);
         switch(dataType){
             case CSV:
                 fm = new CsvFileManager();
@@ -28,7 +23,6 @@ public class DataManager {
             case SERIALIZABLE:
                 fm = new SerializableFileManager();
                 break;
-            default:
         }
         return fm;
     }
