@@ -5,6 +5,7 @@ import pl.store.model.product.Product;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ShopProducts implements Serializable {
@@ -30,13 +31,21 @@ public class ShopProducts implements Serializable {
         productId++;
     }
 
-    public boolean deleteProduct (int idNumber){
+    public boolean deleteOneProduct(int number){
         boolean isDeleted = false;
-        if(shopProducts.containsKey(idNumber)){
-            shopProducts.remove(idNumber);
+        if(shopProducts.containsKey(number)){
+            shopProducts.remove(number);
             isDeleted = true;
-        } else
-            isDeleted = false;
+        }
+        return isDeleted;
+    }
+
+    public boolean deleteProducts(List<Product> products){
+        boolean isDeleted = false;
+        for (Product product : products) {
+            shopProducts.remove(product.getId());
+            isDeleted = true;
+        }
         return isDeleted;
     }
 

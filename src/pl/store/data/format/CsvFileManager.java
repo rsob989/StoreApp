@@ -12,9 +12,7 @@ import pl.store.model.product.Product;
 import pl.store.model.user.*;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 public class CsvFileManager implements FileManager {
 
@@ -50,7 +48,7 @@ public class CsvFileManager implements FileManager {
         ) {
             br.lines()
                     .map(x -> x.split(" : "))
-                    .map(this::loadUser)
+                    .map(this::loadSingleUser)
                     .forEach(shopUsers::addUser);
         } catch (IOException e) {
             throw new ReadDataException("File cannot be load: " + PRODUCTS_FILE_NAME);
@@ -58,7 +56,7 @@ public class CsvFileManager implements FileManager {
         return shopUsers;
     }
 
-    private User loadUser(String[] obj) {
+    private User loadSingleUser(String[] obj) {
         User user = null;
         String[] userData = obj[0].split(" ; ");
         if (userData[0].equals(Client.TYPE)) {

@@ -10,6 +10,8 @@ import pl.store.model.user.Client;
 import pl.store.model.user.Employee;
 import pl.store.model.user.User;
 
+import java.util.Collection;
+
 public class Operations {
 
     public final static int WRONG_LOGIN_TRIAL = 3;
@@ -18,6 +20,7 @@ public class Operations {
     ShopUsers shopUsers;
     ShopProducts shopProducts;
     ContactWithUser cwu;
+    DiscountCalculator dc = new DiscountCalculator();
 
     public Operations(ShopUsers shopUsers, ShopProducts shopProducts, ContactWithUser cwu) {
         this.shopUsers = shopUsers;
@@ -43,7 +46,7 @@ public class Operations {
                     isOk = true;
                 } catch (NoSuchAnUserException e) {
                     cwu.printer(e.getMessage());
-                    cwu.printer("Remaining number of login attempts: " + (WRONG_LOGIN_TRIAL-counter));
+                    cwu.printer("Remaining number of login attempts: " + (WRONG_LOGIN_TRIAL - counter));
                 }
             }
         } while (!isOk);
@@ -68,54 +71,67 @@ public class Operations {
         }
     }
 
-    public void createComputerGames(){
+    public void createComputerGames() {
         ComputerGame computerGame = cwu.createComputerGames();
         try {
             shopProducts.addProduct(computerGame);
-        } catch (ProductWithSuchAnIdNumberAlreadyExistsException e){
+        } catch (ProductWithSuchAnIdNumberAlreadyExistsException e) {
             cwu.printer(e.getMessage());
         }
     }
 
-    public void createBooks(){
+    public void createBooks() {
         Book book = cwu.createBooks();
         try {
             shopProducts.addProduct(book);
-        } catch (ProductWithSuchAnIdNumberAlreadyExistsException e){
+        } catch (ProductWithSuchAnIdNumberAlreadyExistsException e) {
             cwu.printer(e.getMessage());
         }
     }
 
-    public void showProducts(){
-        if(shopProducts.getShopProducts().isEmpty())
-            cwu.printer("There is no products in the store!");
-        else{
-            for(Product p: shopProducts.getShopProducts().values()){
-                cwu.printer(p.toString());
-            }
+    public <E> void showProducts(Collection<E> collection) {
+        if (collection.isEmpty())
+            cwu.printer("There is no products!");
+        else {
+            collection.stream().forEach(System.out::println);
         }
     }
 
-    public void deleteProduct(){
+    public void deleteProduct() {
         cwu.printer("Insert an ID number of a product which you want to delete: ");
         int number = cwu.getInt();
-        if(shopProducts.deleteProduct(number)){
+        if (shopProducts.deleteOneProduct(number)) {
             cwu.printer("Product successfully removed from the store");
         } else
             cwu.printer("Product cannot be removed from the store. Sorry!");
     }
 
-    public void buyProduct(Client client){
-        Product productToBuy = null;
-        showProducts();
-        try{
-            productToBuy = findProduct();
-        } catch (NoSuchAProductException e){
+    public void addProductToTheCart(Client client) {
+        Product productToAddToTheCart = null;
+        cwu.printPromotions();
+        showProducts(shopProducts.getShopProducts().values());
+        try {
+            productToAddToTheCart = findProduct();
+        } catch (NoSuchAProductException e) {
             cwu.printer(e.getMessage());
         }
-        shopProducts.deleteProduct(productToBuy.getId());
-        client.getBoughtProducts().add(productToBuy);
-        cwu.printer("You bought: " + productToBuy.toString());
+        client.getCart().add(productToAddToTheCart);
+        cwu.printer("Successfully added to the cart!");
+    }
+
+    public void buyProduct(Client client) {
+        cwu.printer("Your cart contains: ");
+        showProducts(client.getCart());
+        cwu.printer("Sum of the prices before discount: ");
+        String.format("%.2f", dc.sumPrices(client.getCart()));
+        dc.discountCalculator(client.getCart());
+        cwu.printer("Sum of the prices after discount: ");
+        String.format("%.2f", dc.sumPrices(client.getCart()));
+        shopProducts.deleteProducts(client.getCart());
+        client.getBoughtProducts().addAll(client.getCart());
+        cwu.printer("You bought: ");
+        client.getCart().forEach(System.out::println);
+        client.getCart().clear();
     }
 
     private Product findProduct() {

@@ -36,7 +36,7 @@ public class ComputerGame extends Product{
 
     @Override
     public String toString() {
-        return super.toString() + " ,price with tax: " + String.format("%.2f",priceWithTax()) + " euro, minimal age " + minimumAge
+        return super.toString() + " ,price: " + String.format("%.2f",priceWithTax()) + " euro, minimal age " + minimumAge
                 + ", platform: " + platform;
     }
 

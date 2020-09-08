@@ -146,4 +146,11 @@ public class ContactWithUser {
         System.out.println(text);
     }
 
+    public void printPromotions(){
+        printer("Welcome in our shop!\nToday we have " + DiscountCalculator.PRODUCT_DISCOUNT * 100
+                        + "% discount for " + DiscountCalculator.DISCOUNTED_PRODUCTS + "!\n"
+                        + "Apart from that we have " + DiscountCalculator.OVER_THREE_BOUGHT_PRODUCT_DISCOUNT * 100
+                        + "% discount for all products when you buy three or more products in our shop!");
+    }
+
 }

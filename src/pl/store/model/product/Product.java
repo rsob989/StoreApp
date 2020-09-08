@@ -9,10 +9,19 @@ public abstract class Product implements ToCsv, Serializable {
     private int id;
     private String name;
     private double priceWithoutTax;
+    private double priceWithTax;
 
     public Product(String name, double priceWithoutTax) {
         this.name = name;
         this.priceWithoutTax = priceWithoutTax;
+    }
+
+    public double getPriceWithTax() {
+        return priceWithTax;
+    }
+
+    public void setPriceWithTax(double priceWithTax) {
+        this.priceWithTax = priceWithTax;
     }
 
     public int getId() {
@@ -43,6 +52,6 @@ public abstract class Product implements ToCsv, Serializable {
 
     @Override
     public String toString() {
-        return id + " - " + name + " ,price without tax: " + priceWithoutTax + " euro";
+        return id + " - " + name;
     }
 }

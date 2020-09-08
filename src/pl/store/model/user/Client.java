@@ -1,16 +1,13 @@
 package pl.store.model.user;
 
 import pl.store.model.ToCsv;
-import pl.store.model.product.Product;
-
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class Client extends User {
 
     public static final String TYPE = "CLIENT";
+    public static final int MINIMUM_PRODUCTS_BOUGHT_TO_BE_PREMIUM = 3;
     private Address address;
     private int age;
 
@@ -18,6 +15,10 @@ public class Client extends User {
         super(username, password, firstName, lastName);
         this.address = address;
         this.age = age;
+    }
+
+    public static String getTYPE() {
+        return TYPE;
     }
 
     public Address getAddress() {

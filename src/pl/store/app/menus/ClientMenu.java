@@ -1,7 +1,9 @@
 package pl.store.app.menus;
 
 public enum ClientMenu {
-    BUY(0, "Buy products"), BROWSE(1, "Browse products"), CLOSE(2, "Exit");
+    ADD_TO_THE_CART(0, "Add new product to the cart"), BUY(1, "Buy products"),
+    BROWSE(2, "Browse products"), CLOSE(3, "Exit");
+
     private int id;
     private String description;
 

@@ -15,12 +15,21 @@ public abstract class User implements ToCsv, Serializable {
     private String lastName;
     private String password;
     private List<Product> boughtProducts = new ArrayList<>();
+    private List<Product> cart = new ArrayList<>();
 
     public User(String username, String password, String firstName, String lastName) {
         this.username = username;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
+    }
+
+    public List<Product> getCart() {
+        return cart;
+    }
+
+    public void setCart(List<Product> cart) {
+        this.cart = cart;
     }
 
     public List<Product> getBoughtProducts() {

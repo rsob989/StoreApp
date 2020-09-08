@@ -79,12 +79,16 @@ public class AppController {
     private void clientMenu(Client client){
         ClientMenu clientMenu = cwu.choice(ClientMenu.class);
         switch(clientMenu){
+            case ADD_TO_THE_CART:
+                operations.addProductToTheCart(client);
+                clientMenu(client);
+                break;
             case BUY:
                 operations.buyProduct(client);
                 clientMenu(client);
                 break;
             case BROWSE:
-                operations.showProducts();
+                operations.showProducts(shopProducts.getShopProducts().values());
                 clientMenu(client);
                 break;
             case CLOSE:
@@ -100,7 +104,7 @@ public class AppController {
                 addMenu(employee);
                 break;
             case BROWSE:
-                operations.showProducts();
+                operations.showProducts(shopProducts.getShopProducts().values());
                 employeeMenu(employee);
                 break;
             case DELETE:
